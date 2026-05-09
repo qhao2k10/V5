@@ -1,0 +1,46 @@
+name: Build LQH Genie X V5 From ZIP
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Unzip V5 source
+        run: |
+          unzip -o "LQH_HACKER_GENIE_X_V5_GLITCH_HUD_SOURCE.zip"
+          ls -la
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK packages
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.10.2'
+
+      - name: Build debug APK
+        working-directory: LQH_GameSpace_NoRoot
+        run: gradle assembleDebug --stacktrace
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: LQH-GENIE-X-V5-GLITCH-HUD-debug-apk
+          path: LQH_GameSpace_NoRoot/app/build/outputs/apk/debug/app-debug.apk
